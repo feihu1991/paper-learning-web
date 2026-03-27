@@ -5,6 +5,7 @@ import com.paperlearning.dto.ArxivSearchResult;
 import com.paperlearning.dto.PaperDTO;
 import com.paperlearning.entity.Paper;
 import com.paperlearning.entity.LlmConfig;
+import com.paperlearning.entity.Paper;
 import com.paperlearning.service.ArxivService;
 import com.paperlearning.service.LlmService;
 import com.paperlearning.service.LlmConfigService;
@@ -98,9 +99,9 @@ public class PaperController {
                     .body(ApiResponse.error("No active LLM configuration. Please configure LLM settings first."));
         }
 
-        PaperDTO updated = learningPathService.generateLearningPath(id);
+        Paper updated = learningPathService.generateLearningPath(id);
         if (updated != null) {
-            return ResponseEntity.ok(ApiResponse.success(updated));
+            return ResponseEntity.ok(ApiResponse.success(PaperDTO.fromEntity(updated)));
         } else {
             return ResponseEntity.status(500)
                     .body(ApiResponse.error("Failed to generate learning path."));

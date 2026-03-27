@@ -32,6 +32,10 @@ public class ArxivService {
         }
     }
 
+    public List<ArxivSearchResult> searchArxiv(String query) {
+        return search(query, 10);
+    }
+
     public Optional<ArxivSearchResult> getById(String arxivId) {
         try {
             String url = ARXIV_API + "id_list=" + arxivId;
@@ -56,7 +60,7 @@ public class ArxivService {
             NamedNodeMap attrs = entry.getAttributes();
 
             String id = getTextContent(entry, "id");
-            String arxivId = id.substringAfterLast("/");
+            String arxivId = id.substring(id.lastIndexOf("/") + 1);
 
             String title = cleanText(getTextContent(entry, "title"));
             String summary = cleanText(getTextContent(entry, "summary"));

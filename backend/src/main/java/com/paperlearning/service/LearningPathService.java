@@ -28,7 +28,7 @@ public class LearningPathService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public List<LearningStep> generatePath(Long paperId) {
+    public Paper generateLearningPath(Long paperId) {
         Paper paper = paperRepository.findById(paperId)
                 .orElseThrow(() -> new RuntimeException("Paper not found: " + paperId));
 
@@ -66,12 +66,10 @@ public class LearningPathService {
             }
         }
 
-        // Fallback steps if LLM failed or returned nothing
         if (steps.isEmpty()) {
             steps = createFallbackSteps();
         }
 
-        List<LearningStep> savedSteps = new ArrayList<>();
         for (int i = 0; i < steps.size(); i++) {
             Map<String, Object> stepData = steps.get(i);
             LearningStep step = LearningStep.builder()
@@ -82,7 +80,7 @@ public class LearningPathService {
                     .content((String) stepData.get("content"))
                     .estimatedMinutes(parseIntOrDefault(stepData.get("estimated_minutes"), 5))
                     .build();
-            savedSteps.add(stepRepository.save(step));
+            stepRepository.save(step);
         }
 
         // Initialize user progress
@@ -93,32 +91,62 @@ public class LearningPathService {
                 .build();
         progressRepository.save(progress);
 
-        return savedSteps;
+        return paper;
     }
 
-    public List<LearningStep> getSteps(Long paperId) {
+    public List<LearningStep> getStepsByPaperId(Long paperId) {
         return stepRepository.findByPaperIdOrderByStepOrderAsc(paperId);
     }
 
-    public Optional<UserProgress> getProgress(Long paperId) {
-        return progressRepository.findByPaperId(paperId);
+    public UserProgress getOrCreateProgress(Long paperId) {
+        return progressRepository.findByPaperId(paperId)
+                .orElseGet(() -> {
+                    Paper paper = paperRepository.findById(paperId)
+                            .orElseThrow(() -> new RuntimeException("Paper not found: " + paperId));
+                    UserProgress progress = UserProgress.builder()
+                            .paper(paper)
+                            .currentStep(0)
+                            .completedSteps("[]")
+                            .build();
+                    return progressRepository.save(progress);
+                });
     }
 
     @Transactional
-    public void updateProgress(Long paperId, int currentStep, List<Integer> completedSteps) {
-        UserProgress progress = progressRepository.findByPaperId(paperId)
-                .orElseThrow(() -> new RuntimeException("Progress not found"));
-        progress.setCurrentStep(currentStep);
-        progress.setCompletedSteps(objectMapper.writeValueAsString(completedSteps));
-        progressRepository.save(progress);
+    public UserProgress completeStep(Long paperId, Long stepId) {
+        UserProgress progress = getOrCreateProgress(paperId);
+        List<Integer> completed = parseCompletedSteps(progress.getCompletedSteps());
+        if (!completed.contains(stepId.intValue())) {
+            completed.add(stepId.intValue());
+        }
+        progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        return progressRepository.save(progress);
     }
 
     @Transactional
-    public void markCompleted(Long paperId) {
-        UserProgress progress = progressRepository.findByPaperId(paperId)
-                .orElseThrow(() -> new RuntimeException("Progress not found"));
-        progress.setCompletedAt(java.time.LocalDateTime.now());
-        progressRepository.save(progress);
+    public UserProgress uncompleteStep(Long paperId, Long stepId) {
+        UserProgress progress = getOrCreateProgress(paperId);
+        List<Integer> completed = parseCompletedSteps(progress.getCompletedSteps());
+        completed.remove(stepId.intValue());
+        progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        return progressRepository.save(progress);
+    }
+
+    @Transactional
+    public UserProgress resetProgress(Long paperId) {
+        UserProgress progress = getOrCreateProgress(paperId);
+        progress.setCurrentStep(0);
+        progress.setCompletedSteps("[]");
+        progress.setCompletedAt(null);
+        return progressRepository.save(progress);
+    }
+
+    private List<Integer> parseCompletedSteps(String json) {
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<Integer>>() {});
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     private List<Map<String, Object>> createFallbackSteps() {
