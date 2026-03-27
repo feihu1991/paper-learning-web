@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Row, Col, Card, Button, Spin, message, Typography, Space, Tag, Progress,
+  Row, Col, Card, Button, Spin, message, Typography, Space, Progress,
   Descriptions, Empty, Modal, Divider, Alert
 } from 'antd';
 import {
@@ -12,7 +12,7 @@ import { paperApi, learningApi, configApi } from '../services/api';
 import StepCard from '../components/StepCard';
 import type { Paper, LearningStep, UserProgress, LlmConfig } from '../types';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Paragraph } = Typography;
 
 const PaperPage = () => {
   const { id } = useParams<{ id: string }>();

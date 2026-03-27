@@ -1,4 +1,4 @@
-import { Card, Checkbox, Tag, Progress, Typography } from 'antd';
+import { Card, Checkbox, Tag, Typography } from 'antd';
 import type { LearningStep } from '../types';
 
 const { Text } = Typography;

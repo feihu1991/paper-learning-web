@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
-import { HomeOutlined, SettingOutlined, BookOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 

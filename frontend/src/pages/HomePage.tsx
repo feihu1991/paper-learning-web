@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Col, Input, Button, List, Spin, message, Empty, Modal, Typography, Space, Tag } from 'antd';
+import { Row, Col, Input, Button, Spin, message, Empty, Modal, Typography, Space, Tag } from 'antd';
 import { SearchOutlined, DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
 import { paperApi } from '../services/api';
 import PaperCard from '../components/PaperCard';
