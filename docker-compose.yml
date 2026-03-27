@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: paper-learning-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: paper_learning
+      MYSQL_USER: paperuser
+      MYSQL_PASSWORD: paperpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: paper-learning-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: paper_learning
+      DB_PASSWORD: rootpass
+      SERVER_PORT: 8080
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
