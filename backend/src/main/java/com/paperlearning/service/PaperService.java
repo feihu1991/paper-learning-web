@@ -25,7 +25,9 @@ public class PaperService {
     private final LlmConfigService llmConfigService;
 
     public java.util.List<PaperDTO> getAllPapers() {
-        return getAllPapers(PageRequest.of(0, 50));
+        return paperRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 50))
+                .map(PaperDTO::fromEntity)
+                .getContent();
     }
 
     public Page<PaperDTO> getAllPapers(Pageable pageable) {
@@ -38,7 +40,9 @@ public class PaperService {
     }
 
     public java.util.List<PaperDTO> searchPapers(String keyword) {
-        return searchPapers(keyword, PageRequest.of(0, 50));
+        return paperRepository.search(keyword, PageRequest.of(0, 50))
+                .map(PaperDTO::fromEntity)
+                .getContent();
     }
 
     public Page<PaperDTO> searchPapers(String query, Pageable pageable) {

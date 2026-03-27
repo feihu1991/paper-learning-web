@@ -5,7 +5,6 @@ import com.paperlearning.dto.ArxivSearchResult;
 import com.paperlearning.dto.PaperDTO;
 import com.paperlearning.entity.Paper;
 import com.paperlearning.entity.LlmConfig;
-import com.paperlearning.entity.Paper;
 import com.paperlearning.service.ArxivService;
 import com.paperlearning.service.LlmService;
 import com.paperlearning.service.LlmConfigService;
@@ -54,7 +53,16 @@ public class PaperController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<PaperDTO>> savePaper(@RequestBody PaperDTO paperDTO) {
-        PaperDTO saved = paperService.savePaper(paperDTO);
+        Paper paper = Paper.builder()
+                .title(paperDTO.getTitle())
+                .authors(paperDTO.getAuthors())
+                .paperAbstract(paperDTO.getPaperAbstract())
+                .pdfPath(paperDTO.getPdfPath())
+                .sourceUrl(paperDTO.getSourceUrl())
+                .arxivId(paperDTO.getArxivId())
+                .parsedStatus(Paper.ParsedStatus.NOT_PARSED)
+                .build();
+        PaperDTO saved = paperService.savePaper(paper);
         return ResponseEntity.ok(ApiResponse.success(saved));
     }
 
