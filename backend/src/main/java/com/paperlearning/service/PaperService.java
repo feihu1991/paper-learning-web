@@ -46,16 +46,7 @@ public class PaperService {
     }
 
     @Transactional
-    public PaperDTO savePaper(PaperDTO dto) {
-        Paper paper = Paper.builder()
-                .title(dto.getTitle())
-                .authors(dto.getAuthors())
-                .paperAbstract(dto.getPaperAbstract())
-                .pdfPath(dto.getPdfPath())
-                .sourceUrl(dto.getSourceUrl())
-                .arxivId(dto.getArxivId())
-                .parsedStatus(Paper.ParsedStatus.NOT_PARSED)
-                .build();
+    public PaperDTO savePaper(Paper paper) {
         Paper saved = paperRepository.save(paper);
         log.info("Paper saved: id={}, title={}", saved.getId(), saved.getTitle());
         return PaperDTO.fromEntity(saved);
