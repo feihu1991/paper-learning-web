@@ -119,7 +119,11 @@ public class LearningPathService {
         if (!completed.contains(stepId.intValue())) {
             completed.add(stepId.intValue());
         }
-        progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        try {
+            progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        } catch (Exception e) {
+            progress.setCompletedSteps("[]");
+        }
         return progressRepository.save(progress);
     }
 
@@ -128,7 +132,11 @@ public class LearningPathService {
         UserProgress progress = getOrCreateProgress(paperId);
         List<Integer> completed = parseCompletedSteps(progress.getCompletedSteps());
         completed.remove(stepId.intValue());
-        progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        try {
+            progress.setCompletedSteps(objectMapper.writeValueAsString(completed));
+        } catch (Exception e) {
+            progress.setCompletedSteps("[]");
+        }
         return progressRepository.save(progress);
     }
 
